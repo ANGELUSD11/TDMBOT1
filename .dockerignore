@@ -1,0 +1,8 @@
+﻿.env
+__pycache__/
+*.py[cod]
+*.class
+.git/
+.vscode/
+temp_tts_*.mp3
+temp_ask_*.mp3

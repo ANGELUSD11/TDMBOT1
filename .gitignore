@@ -1,0 +1,25 @@
+﻿# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.class
+
+# IDEs
+.vscode/
+.idea/
+.vs/
+
+# Temp files
+*.log
+temp_tts_*.mp3
+temp_ask_*.mp3
+
+last_video.json
