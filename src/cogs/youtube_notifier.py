@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands, tasks
 import aiohttp
 import os
@@ -79,7 +79,20 @@ class YouTubeNotifierCog(commands.Cog):
                                 channel = self.bot.get_channel(self.notify_channel_id)
                                 if channel:
                                     title = latest_video["snippet"]["title"]
-                                    await channel.send(f"📢 **¡Nuevo video subido al canal!**\n{title}\nhttps://www.youtube.com/watch?v={video_id}")
+                                    live_status = latest_video["snippet"].get("liveBroadcastContent", "none")
+                                    
+                                    if live_status == "live":
+                                        msg = (f"@everyone 🔴 **¡ALERTA DE DIRECTO!** 🔴\n\n"
+                                               f"¡Dejen lo que estén haciendo! Angelus11 acaba de prender stream. "
+                                               f"Si no entras ahora, te vas a perder el chisme en vivo.\n\n"
+                                               f"**{title}**\nhttps://www.youtube.com/watch?v={video_id}")
+                                    else:
+                                        msg = (f"@everyone 🍿 **¡NUEVO VIDEO RECIÉN SALIDO DEL HORNO!** 🍿\n\n"
+                                               f"La espera ha terminado. Angelus11 acaba de bendecirnos con contenido fresco. "
+                                               f"Ve a darle amor, deja tu like y no te olvides de comentar.\n\n"
+                                               f"**{title}**\nhttps://www.youtube.com/watch?v={video_id}")
+                                        
+                                    await channel.send(msg)
                             elif not self.last_video_id:
                                 # On first execution, just save the latest ID without notifying
                                 self.last_video_id = video_id

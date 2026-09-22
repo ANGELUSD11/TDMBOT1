@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands, tasks
 import os
 import datetime
@@ -17,8 +17,8 @@ class EventsCog(commands.Cog):
             self.server_id = 0
             self.channel_id = 0
             
-        self.BIRTH_DAY = int(os.getenv("BIRTH_DAY", 11))
-        self.BIRTH_MONTH = int(os.getenv("BIRTH_MONTH", 11))
+        self.BIRTH_DAY = int(os.getenv("BIRTH_DAY", 15))
+        self.BIRTH_MONTH = int(os.getenv("BIRTH_MONTH", 7))
         self.BIRTH_YEAR = int(os.getenv("BIRTH_YEAR", 2005))
         self.BIRTH_HOUR = 12
         self.BIRTH_MINUTE = 0

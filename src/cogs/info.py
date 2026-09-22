@@ -55,6 +55,8 @@ class InfoCog(commands.Cog):
                 "`>chat` - Ask Gemini Flash AI anything\n"
                 "`>smart` - Ask Gemini, backed by real-time internet search\n"
                 "`>programmer` - Expert AI coding assistant and mentor\n"
+                "`>imagine` - Generate an AI image from a prompt\n"
+                "`>edit` - Apply NotSoBot-style filters to an image\n"
                 "`>translate` - Translate text to any language\n"
                 "`>ocr` - Extract text from attached images\n\n"
                 "**😂 Entertainment:**\n"
