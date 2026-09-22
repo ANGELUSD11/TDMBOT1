@@ -23,3 +23,5 @@ temp_tts_*.mp3
 temp_ask_*.mp3
 
 last_video.json
+
+downloads/

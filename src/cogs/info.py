@@ -65,10 +65,11 @@ class InfoCog(commands.Cog):
                 ">join / >leave - Connect or disconnect\n"
                 ">ask - Make me speak text in the VC using TTS\n\n"
                 "**🔧 Utility:**\n"
-                ">avatar - View a user's profile picture\n"
-                ">spotify - View what a user is listening to\n"
-                ">binary - Convert text to binary and vice versa\n"
-                ">madewith - Technical info about the bot\n\n"
+                "`>dl` - Download videos (YouTube, TikTok, Twitter, etc)\n"
+                "`>avatar` - View a user's profile picture\n"
+                "`>spotify` - View what a user is listening to\n"
+                "`>binary` - Convert text to binary and vice versa\n"
+                "`>madewith` - Technical info about the bot\n\n"
                 f"Author: [{BotConfig.AUTHOR}]({BotConfig.WEBSITE}) | [GitHub]({BotConfig.GITHUB_URL})"
             ),
             color=EmbedColors.SUCCESS
