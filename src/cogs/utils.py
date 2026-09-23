@@ -1,8 +1,10 @@
 import discord
 from discord.ext import commands
-from deep_translator import GoogleTranslator
+from deep_translator import MyMemoryTranslator
 import wikipedia
 import asyncio
+from langdetect import detect
+from deep_translator import MyMemoryTranslator
 from utils.constants import EmbedColors, Emojis
 
 class UtilsCog(commands.Cog):
@@ -39,8 +41,21 @@ class UtilsCog(commands.Cog):
             return await ctx.send(embed=embed)
             
         try:
+            lang_map = {
+                'en': 'en-US', 'es': 'es-ES', 'fr': 'fr-FR', 'de': 'de-DE',
+                'it': 'it-IT', 'pt': 'pt-PT', 'ru': 'ru-RU', 'ja': 'ja-JP',
+                'zh': 'zh-CN', 'ar': 'ar-SA'
+            }
+            target_lang = lang_map.get(lang.lower(), lang)
+            
+            try:
+                source_lang = detect(text)
+                source_lang = lang_map.get(source_lang, source_lang)
+            except:
+                source_lang = 'es-ES'
+
             translated = await asyncio.to_thread(
-                GoogleTranslator(source='auto', target=lang).translate, 
+                MyMemoryTranslator(source=source_lang, target=target_lang).translate, 
                 text
             )
             
@@ -51,7 +66,7 @@ class UtilsCog(commands.Cog):
             embed.add_field(name=f"Translated ({lang})", value=translated[:1024], inline=False)
             await ctx.send(embed=embed)
         except Exception as e:
-            await ctx.send(f"{Emojis.NO} An error occurred during translation. Make sure the language code is valid (e.g., 'en', 'es', 'fr').")
+            await ctx.send(f"{Emojis.NO} An error occurred during translation. Check if the language code is valid.").")
 
     @commands.hybrid_command(name="wiki", description="Search Wikipedia")
     @commands.cooldown(1, 3, commands.BucketType.user)
