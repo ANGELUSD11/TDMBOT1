@@ -44,7 +44,7 @@ class UtilsCog(commands.Cog):
             lang_map = {
                 'en': 'en-US', 'es': 'es-ES', 'fr': 'fr-FR', 'de': 'de-DE',
                 'it': 'it-IT', 'pt': 'pt-PT', 'ru': 'ru-RU', 'ja': 'ja-JP',
-                'zh': 'zh-CN', 'ar': 'ar-SA'
+                'zh': 'zh-CN', 'ar': 'ar-SA', 'ko': 'ko-KR', 'nl': 'nl-NL', 'tr': 'tr-TR', 'hi': 'hi-IN', 'id': 'id-ID', 'pl': 'pl-PL', 'vi': 'vi-VN'
             }
             target_lang = lang_map.get(lang.lower(), lang)
             
@@ -66,7 +66,7 @@ class UtilsCog(commands.Cog):
             embed.add_field(name=f"Translated ({lang})", value=translated[:1024], inline=False)
             await ctx.send(embed=embed)
         except Exception as e:
-            await ctx.send(f"{Emojis.NO} An error occurred during translation. Check if the language code is valid.").")
+            await ctx.send(f"{Emojis.NO} An error occurred during translation. Check if the language code is valid.")
 
     @commands.hybrid_command(name="wiki", description="Search Wikipedia")
     @commands.cooldown(1, 3, commands.BucketType.user)
@@ -96,6 +96,38 @@ class UtilsCog(commands.Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.send(f"{Emojis.WARNING} {summary}")
+
+
+
+
+
+
+    @commands.hybrid_command(name="langs", description="List all supported language prefixes for translation")
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def langs(self, ctx: commands.Context):
+        msg = (
+            "**Supported Language Prefixes for `>translate`**\n\n"
+            "🇬🇧 `en` - English\n"
+            "🇪🇸 `es` - Spanish (Español)\n"
+            "🇫🇷 `fr` - French (Français)\n"
+            "🇩🇪 `de` - German (Deutsch)\n"
+            "🇮🇹 `it` - Italian (Italiano)\n"
+            "🇵🇹 `pt` - Portuguese (Português)\n"
+            "🇷🇺 `ru` - Russian (Русский)\n"
+            "🇯🇵 `ja` - Japanese (日本語)\n"
+            "🇨🇳 `zh` - Chinese (中文)\n"
+            "🇰🇷 `ko` - Korean (한국어)\n"
+            "🇸🇦 `ar` - Arabic (العربية)\n"
+            "🇳🇱 `nl` - Dutch (Nederlands)\n"
+            "🇹🇷 `tr` - Turkish (Türkçe)\n"
+            "🇮🇳 `hi` - Hindi (हिन्दी)\n"
+            "🇮🇩 `id` - Indonesian (Bahasa Indonesia)\n"
+            "🇵🇱 `pl` - Polish (Polski)\n"
+            "🇻🇳 `vi` - Vietnamese (Tiếng Việt)\n\n"
+            "**Example:** `>translate ko Hello friend`"
+        )
+        embed = discord.Embed(description=msg, color=EmbedColors.INFO)
+        await ctx.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(UtilsCog(bot))
