@@ -82,11 +82,26 @@ class AICog(commands.Cog):
                     return await ctx.send(f"{Emojis.WARNING} The attached file is not a supported image format.")
                     
             current_dir = os.path.dirname(os.path.abspath(__file__))
-            prompt_path = os.path.join(current_dir, "..", "prompts", "dynamic_persona.md")
-            system_instruction = ""
-            if os.path.exists(prompt_path):
-                with open(prompt_path, "r", encoding="utf-8") as f:
-                    system_instruction = f.read()
+            personas_dir = os.path.join(current_dir, "..", "prompts", "personas")
+            
+            system_instruction = (
+                "You are TDMBOT, a highly intelligent and versatile Discord assistant.\n"
+                "Your unique ability is to dynamically detect the field or domain of the user's topic and automatically adopt the persona of an absolute expert in that specific field.\n\n"
+                "Here are the specific personas you must adopt when applicable:\n"
+            )
+            
+            if os.path.exists(personas_dir):
+                for filename in os.listdir(personas_dir):
+                    if filename.endswith(".md"):
+                        topic = filename.replace(".md", "").capitalize()
+                        with open(os.path.join(personas_dir, filename), "r", encoding="utf-8") as f:
+                            system_instruction += f"- **{topic}**: {f.read().strip()}\n"
+                            
+            system_instruction += (
+                "\nIf the user's question touches multiple areas, combine the personas.\n"
+                "If the topic doesn't fit any of these areas, act as your default persona: a highly helpful, friendly, and capable AI assistant.\n"
+                "Always respond in the same language the user uses. Keep your formatting clean using Markdown."
+            )
 
             response = await self.client.aio.models.generate_content(
                 model='gemini-2.5-flash',
