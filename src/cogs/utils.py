@@ -1,10 +1,7 @@
 import discord
 from discord.ext import commands
-from deep_translator import MyMemoryTranslator
 import wikipedia
 import asyncio
-from langdetect import detect
-from deep_translator import MyMemoryTranslator
 from utils.constants import EmbedColors, Emojis
 
 class UtilsCog(commands.Cog):
@@ -41,23 +38,21 @@ class UtilsCog(commands.Cog):
             return await ctx.send(embed=embed)
             
         try:
-            lang_map = {
-                'en': 'en-US', 'es': 'es-ES', 'fr': 'fr-FR', 'de': 'de-DE',
-                'it': 'it-IT', 'pt': 'pt-PT', 'ru': 'ru-RU', 'ja': 'ja-JP',
-                'zh': 'zh-CN', 'ar': 'ar-SA', 'ko': 'ko-KR', 'nl': 'nl-NL', 'tr': 'tr-TR', 'hi': 'hi-IN', 'id': 'id-ID', 'pl': 'pl-PL', 'vi': 'vi-VN'
-            }
-            target_lang = lang_map.get(lang.lower(), lang)
+            import os
+            from google import genai
             
-            try:
-                source_lang = detect(text)
-                source_lang = lang_map.get(source_lang, source_lang)
-            except:
-                source_lang = 'es-ES'
-
-            translated = await asyncio.to_thread(
-                MyMemoryTranslator(source=source_lang, target=target_lang).translate, 
-                text
+            api_key = os.getenv("GEMINI_API_KEY")
+            if not api_key:
+                return await ctx.send(f"{Emojis.NO} Translation failed: GEMINI_API_KEY is missing.")
+                
+            client = genai.Client(api_key=api_key)
+            prompt = f"You are a professional translator. Translate the following text to the language code/name '{lang}'. Output ONLY the translated text, without quotes, explanations, or original text. Maintain the original tone. Text to translate: {text}"
+            
+            response = await client.aio.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt
             )
+            translated = response.text.strip()
             
             await redis_cache.set(cache_key, translated, ttl=86400) # Cache for 24 hours
             
@@ -66,7 +61,8 @@ class UtilsCog(commands.Cog):
             embed.add_field(name=f"Translated ({lang})", value=translated[:1024], inline=False)
             await ctx.send(embed=embed)
         except Exception as e:
-            await ctx.send(f"{Emojis.NO} An error occurred during translation. Check if the language code is valid.")
+            await ctx.send(f"{Emojis.NO} An error occurred during translation. Check if your API Key is valid or try again later.")
+            print(f"Translation error: {e}")
 
     @commands.hybrid_command(name="wiki", description="Search Wikipedia")
     @commands.cooldown(1, 3, commands.BucketType.user)
@@ -96,11 +92,6 @@ class UtilsCog(commands.Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.send(f"{Emojis.WARNING} {summary}")
-
-
-
-
-
 
     @commands.hybrid_command(name="langs", description="List all supported language prefixes for translation")
     @commands.cooldown(1, 5, commands.BucketType.user)
