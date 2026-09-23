@@ -13,6 +13,7 @@ logger = logging.getLogger('discord')
 load_dotenv()
 
 from utils.cache import redis_cache
+from utils.constants import Emojis
 
 class ProfessionalBot(commands.Bot):
     def __init__(self):
