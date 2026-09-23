@@ -1,4 +1,4 @@
-import discord
+﻿import discord
 
 class EmbedColors:
     DEFAULT = 0x3498DB   # Blue
@@ -19,6 +19,6 @@ class Emojis:
 
 class BotConfig:
     VERSION = "2.0.0"
-    GITHUB_URL = "https://github.com/ANGELUSD11/TDMBOT"
+    GITHUB_URL = "https://github.com/ANGELUSD11/TDMBOT1"
     WEBSITE = "https://angelus11.dev"
     AUTHOR = "ANGELUS11"
