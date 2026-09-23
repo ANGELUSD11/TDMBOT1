@@ -64,7 +64,7 @@ class ImagineCog(commands.Cog):
 
     @commands.hybrid_command(name="edit", description="Apply NotSoBot-style filters/AI modifications to an image")
     @commands.cooldown(1, 10, commands.BucketType.user)
-    async def edit(self, ctx: commands.Context, style: str = "deepfry", image: discord.Attachment = None):
+    async def edit(self, ctx: commands.Context, style: str = "random", image: discord.Attachment = None):
         """Styles: deepfry, invert, blur, grayscale, edge"""
         image_url = None
         if image:
@@ -104,6 +104,10 @@ class ImagineCog(commands.Cog):
 
             img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
             style = style.lower()
+            
+            import random
+            if style == "random":
+                style = random.choice(["deepfry", "invert", "blur", "grayscale", "edge"])
             
             if style == "invert":
                 img = ImageOps.invert(img)
