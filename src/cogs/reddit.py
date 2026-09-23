@@ -10,8 +10,10 @@ class RedditCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.reddit = asyncpraw.Reddit(
-            client_id=os.getenv("CLIENT_ID") or os.getenv("REDDIT_CLIENT_ID"),
-            client_secret=os.getenv("CLIENT_SECRET") or os.getenv("REDDIT_CLIENT_SECRET"),
+            client_id=os.getenv("CLIENT_ID"),
+            client_secret=os.getenv("CLIENT_SECRET"),
+            username=os.getenv("REDDIT_USERNAME"),
+            password=os.getenv("REDDIT_PASSWORD"),
             user_agent="discord:tdmbot:v1.0 (by u/Angelus11)"
         )
 
