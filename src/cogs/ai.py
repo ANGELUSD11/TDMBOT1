@@ -1,4 +1,4 @@
-import discord
+﻿import discord
 from discord.ext import commands
 import os
 from google import genai
@@ -9,7 +9,7 @@ import uuid
 from langdetect import detect, LangDetectException
 from PIL import Image
 from io import BytesIO
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 from utils.constants import Emojis
 
 class AICog(commands.Cog):
@@ -193,3 +193,4 @@ class AICog(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(AICog(bot))
+

@@ -1,10 +1,10 @@
-import discord
+﻿import discord
 from discord.ext import commands
 import os
 import aiohttp
 import asyncio
-from duckduckgo_search import DDGS
-from duckduckgo_search.exceptions import DuckDuckGoSearchException, RatelimitException, TimeoutException
+from ddgs import DDGS
+from ddgs.exceptions import DDGSException, RatelimitException, TimeoutException
 from utils.constants import EmbedColors, Emojis
 
 class QueryCog(commands.Cog):
@@ -94,7 +94,7 @@ class QueryCog(commands.Cog):
             await ctx.send(f"{Emojis.WARNING} DuckDuckGo rate limit reached. Please wait a bit before searching again.")
         except TimeoutException:
             await ctx.send(f"{Emojis.NO} DuckDuckGo search timed out. The server took too long to respond.")
-        except DuckDuckGoSearchException as e:
+        except DDGSException as e:
             await ctx.send(f"{Emojis.NO} DuckDuckGo Search Error: {str(e)}")
         except Exception as e:
             await ctx.send(f"{Emojis.NO} An unexpected error occurred during the web search: {str(e)}")
@@ -131,10 +131,11 @@ class QueryCog(commands.Cog):
             await ctx.send(f"{Emojis.WARNING} DuckDuckGo rate limit reached. Please wait a bit before searching again.")
         except TimeoutException:
             await ctx.send(f"{Emojis.NO} DuckDuckGo image search timed out. The server took too long to respond.")
-        except DuckDuckGoSearchException as e:
+        except DDGSException as e:
             await ctx.send(f"{Emojis.NO} DuckDuckGo Search Error: {str(e)}")
         except Exception as e:
             await ctx.send(f"{Emojis.NO} An unexpected error occurred during the image search: {str(e)}")
 
 async def setup(bot):
     await bot.add_cog(QueryCog(bot))
+
