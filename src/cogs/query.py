@@ -107,9 +107,11 @@ class QueryCog(commands.Cog):
             
         await ctx.defer()
         
+        import random
         def do_img_search():
             with DDGS() as ddgs:
-                return list(ddgs.images(query, max_results=1))
+                clean_query = query + " -site:pinterest.com -site:pinterest.es"
+                return list(ddgs.images(clean_query, max_results=7))
                 
         try:
             results = await asyncio.to_thread(do_img_search)
@@ -117,7 +119,7 @@ class QueryCog(commands.Cog):
             if not results:
                 return await ctx.send(f"{Emojis.WARNING} No images found.")
                 
-            image_data = results[0]
+            image_data = random.choice(results)
             embed = discord.Embed(
                 title=f"{Emojis.IMAGE} {image_data.get('title', query)}",
                 url=image_data.get("url", "#"),
