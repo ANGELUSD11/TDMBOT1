@@ -15,3 +15,5 @@ ddgs==9.16.0
 yt-dlp==2026.8.19
 redis==8.1.0
 waitress==3.0.2
+
+davey
