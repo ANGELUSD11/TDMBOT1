@@ -54,6 +54,10 @@ class QueryCog(commands.Cog):
         if not search_query:
             return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>yt [search_query]`\nExample: `>yt python tutorial`")
             
+        blocked_words = ['porn', 'porno', 'gore', 'hentai', 'xvideo', 'nude', 'desnuda', 'desnudo', 'rule34', 'rule 34', 'nsfw', 'sexo']
+        if any(word in query.lower() for word in blocked_words):
+            return await ctx.send(f"{Emojis.NO} **Safety Block:** Your search query contains sensitive or inappropriate keywords.")
+        
         await ctx.defer() 
         url = "https://www.googleapis.com/youtube/v3/search"
         params = {"part": "snippet", "q": search_query, "key": self.youtube_api_key, "type": "video", "maxResults": 1}
@@ -89,6 +93,10 @@ class QueryCog(commands.Cog):
         if not query:
             return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>search [query]`\nExample: `>search history of rome`")
             
+        blocked_words = ['porn', 'porno', 'gore', 'hentai', 'xvideo', 'nude', 'desnuda', 'desnudo', 'rule34', 'rule 34', 'nsfw', 'sexo']
+        if any(word in query.lower() for word in blocked_words):
+            return await ctx.send(f"{Emojis.NO} **Safety Block:** Your search query contains sensitive or inappropriate keywords.")
+        
         await ctx.defer()
         
         from utils.cache import redis_cache
@@ -108,7 +116,7 @@ class QueryCog(commands.Cog):
 
         def do_search():
             with DDGS() as ddgs:
-                return list(ddgs.text(query, max_results=3))
+                return list(ddgs.text(query, max_results=3, safesearch="on"))
                 
         try:
             results = await asyncio.to_thread(do_search)
@@ -141,12 +149,16 @@ class QueryCog(commands.Cog):
         if not query:
             return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>img [query]`\nExample: `>img beautiful landscape`")
             
+        blocked_words = ['porn', 'porno', 'gore', 'hentai', 'xvideo', 'nude', 'desnuda', 'desnudo', 'rule34', 'rule 34', 'nsfw', 'sexo']
+        if any(word in query.lower() for word in blocked_words):
+            return await ctx.send(f"{Emojis.NO} **Safety Block:** Your search query contains sensitive or inappropriate keywords.")
+        
         await ctx.defer()
         
         def do_img_search():
             with DDGS() as ddgs:
                 # Fetch more images because we will filter Pinterest manually
-                raw_results = list(ddgs.images(query, max_results=20))
+                raw_results = list(ddgs.images(query, max_results=20, safesearch='on'))
                 
                 # Filter out Pinterest manually so the search engine algorithm doesn't break
                 clean_results = []
