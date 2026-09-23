@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands
 import asyncpraw
 import asyncprawcore
@@ -12,7 +12,7 @@ class RedditCog(commands.Cog):
         self.reddit = asyncpraw.Reddit(
             client_id=os.getenv("CLIENT_ID"),
             client_secret=os.getenv("CLIENT_SECRET"),
-            user_agent="TDMBOT by ANGELUS11"
+            user_agent="discord:tdmbot:v1.0 (by u/Angelus11)"
         )
 
     async def fetch_meme(self, ctx, subreddit_name):
