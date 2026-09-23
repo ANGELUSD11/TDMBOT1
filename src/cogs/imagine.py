@@ -18,9 +18,28 @@ class ImagineCog(commands.Cog):
             
         await ctx.defer()
         
+        # --- SAFETY BARRIER (Gemini AI Scanner) ---
+        try:
+            import os
+            from google import genai
+            api_key = os.getenv("GEMINI_API_KEY")
+            if api_key:
+                client = genai.Client(api_key=api_key)
+                safety_prompt = f"Analyze this image generation prompt. Respond with strictly 'SAFE' or 'UNSAFE'. Consider it UNSAFE if it contains porn, nudity, sexual situations, gore, extreme violence, self-harm, or highly offensive/hateful words. Prompt: {prompt}"
+                safety_response = await client.aio.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=safety_prompt
+                )
+                if 'UNSAFE' in safety_response.text.upper():
+                    return await ctx.send(f"{Emojis.NO} **Safety Block:** Your prompt violates the safety guidelines (NSFW, gore, or offensive content). Request denied.")
+        except Exception as e:
+            print(f"Safety Scanner Error: {e}")
+            # If the scanner fails, we still continue but rely on Pollinations safe mode
+        # ------------------------------------------
+
         # Pollinations is a free, no-API-key image generation service
         encoded_prompt = urllib.parse.quote(prompt)
-        url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?nologo=true"
+        url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?nologo=true&safe=true"
         
         try:
             headers = {
