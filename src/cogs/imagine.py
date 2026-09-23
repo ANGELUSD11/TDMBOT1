@@ -66,20 +66,38 @@ class ImagineCog(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def edit(self, ctx: commands.Context, style: str = "deepfry", image: discord.Attachment = None):
         """Styles: deepfry, invert, blur, grayscale, edge"""
-        if not image:
-            if ctx.message.attachments:
-                image = ctx.message.attachments[0]
-            else:
-                return await ctx.send(f"{Emojis.WARNING} Please attach an image to edit.")
+        image_url = None
+        if image:
+            image_url = image.url
+        elif ctx.message.attachments:
+            image_url = ctx.message.attachments[0].url
+        elif ctx.message.reference and ctx.message.reference.resolved:
+            resolved = ctx.message.reference.resolved
+            if hasattr(resolved, 'attachments') and resolved.attachments:
+                image_url = resolved.attachments[0].url
+            elif hasattr(resolved, 'embeds') and resolved.embeds and resolved.embeds[0].image:
+                image_url = resolved.embeds[0].image.url
+        
+        if not image_url:
+            # Fallback to fetch message if resolved is None
+            if ctx.message.reference and ctx.message.reference.message_id:
+                try:
+                    resolved = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+                    if resolved.attachments:
+                        image_url = resolved.attachments[0].url
+                    elif resolved.embeds and resolved.embeds[0].image:
+                        image_url = resolved.embeds[0].image.url
+                except Exception:
+                    pass
 
-        if not image.content_type or not image.content_type.startswith('image/'):
-            return await ctx.send(f"{Emojis.NO} The attached file is not a valid image.")
+        if not image_url:
+            return await ctx.send(f"{Emojis.WARNING} Please attach an image or reply to a message containing an image to edit.")
 
         await ctx.defer()
         
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(image.url) as response:
+                async with session.get(image_url) as response:
                     if response.status != 200:
                         return await ctx.send(f"{Emojis.NO} Failed to download the image.")
                     image_bytes = await response.read()
