@@ -12,7 +12,5 @@ gTTS==2.5.1
 PyNaCl==1.5.0
 langdetect==1.0.9
 duckduckgo-search==5.3.1
-
-yt-dlp
-
-redis
+yt-dlp==2026.8.19
+redis==8.1.0
