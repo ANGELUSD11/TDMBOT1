@@ -145,9 +145,18 @@ class QueryCog(commands.Cog):
         
         def do_img_search():
             with DDGS() as ddgs:
-                clean_query = query + " -site:pinterest.com -site:pinterest.es"
-                # Fetch 4 images (original + 3 jumps)
-                return list(ddgs.images(clean_query, max_results=4))
+                # Fetch more images because we will filter Pinterest manually
+                raw_results = list(ddgs.images(query, max_results=20))
+                
+                # Filter out Pinterest manually so the search engine algorithm doesn't break
+                clean_results = []
+                for res in raw_results:
+                    if 'pinterest' not in res.get('source', '').lower() and 'pinterest' not in res.get('url', '').lower():
+                        clean_results.append(res)
+                        if len(clean_results) >= 4:
+                            break
+                            
+                return clean_results
                 
         try:
             results = await asyncio.to_thread(do_img_search)
