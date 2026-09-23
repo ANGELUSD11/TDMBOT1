@@ -10,6 +10,7 @@ from utils.constants import Emojis
 class VoiceCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.tts_locks = {}
 
     @commands.hybrid_command(name="join", description="Join the voice channel")
     async def join(self, ctx: commands.Context):
@@ -60,13 +61,19 @@ class VoiceCog(commands.Cog):
         await asyncio.to_thread(generate_ask_tts)
         
         try:
-            while voice_client.is_playing():
-                await asyncio.sleep(1)
+            # High-load race condition fix: Use a lock per guild to queue TTS audio
+            if ctx.guild.id not in self.tts_locks:
+                self.tts_locks[ctx.guild.id] = asyncio.Lock()
+                
+            async with self.tts_locks[ctx.guild.id]:
+                # Wait for any currently playing audio to finish naturally
+                while voice_client.is_playing():
+                    await asyncio.sleep(0.5)
 
-            voice_client.play(
-                discord.FFmpegPCMAudio(audio_file),
-                after=lambda e: os.remove(audio_file) if os.path.exists(audio_file) else None
-            )
+                voice_client.play(
+                    discord.FFmpegPCMAudio(audio_file),
+                    after=lambda e: os.remove(audio_file) if os.path.exists(audio_file) else None
+                )
         except Exception as play_error:
             if os.path.exists(audio_file):
                 os.remove(audio_file)
