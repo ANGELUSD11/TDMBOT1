@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
@@ -18,6 +18,8 @@ class ProfessionalBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.message_content = True
+        intents.presences = True
+        intents.members = True
         
         super().__init__(
             command_prefix=commands.when_mentioned_or('>'),
