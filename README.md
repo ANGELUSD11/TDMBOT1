@@ -1,4 +1,4 @@
-## **💠TDMBOT Discord Bot**  
+﻿## **💠TDMBOT Discord Bot**  
 Made with Python and Discord.py  
 ![Preview](images/2025-04-17_17-42.png)
 
@@ -69,10 +69,10 @@ git clone https://github.com/ANGELUSD11/TDMBOT.git
 ```  
 3. Instala todos los paquetes necesarios con pip mediante el .txt que he dejado
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```  
 4. Reemplaza todos tus tokens y api keys en el archivo ```.env``` para que el bot pueda consumir sus APIs(cuidado👀, recuerda que estos datos son sensibles y no se pueden exponer)  
-5. Ejecuta el script ```bot.py``` que se encuentra en ```/src/bot.py```  
+5. Ejecuta el script ```main.py``` que se encuentra en ```src/main.py```  
 Este script contiene un bucle for que recorre todos los módulos del bot divididos en cogs y luego informa en terminal si se ejecutaron correctamente.
 
 ## Configuración inicial Discord.py  
@@ -175,12 +175,31 @@ git clone https://github.com/ANGELUSD11/TDMBOT.git
 ```
 3. Install all required packages with pip using the provided .txt file
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```  
 4. Replace all your tokens and API keys in the ```.env``` file so the bot can access its APIs
 (Careful 👀, remember these are sensitive values and should not be exposed)
-5. Run the ```bot.py``` script located in ```/src/bot.py```
+5. Run the ```main.py``` script located in ```src/main.py```
 This script contains a for loop that loads all the bot’s modules (organized in cogs) and then logs in the terminal if they were loaded successfully.
+
+## ⚡ Fast Installation with uv (Recommended)
+If you want to install and run the project up to 100x faster, you can use [uv](https://docs.astral.sh/uv/), Astral's lightning-fast Python package manager:
+
+1. Install uv (if you haven't already):
+`ash
+pip install uv
+`
+
+2. Create a virtual environment and install all dependencies instantly:
+`ash
+uv venv
+uv pip install -r requirements.txt
+`
+
+3. Run the bot using uv:
+`ash
+uv run src/main.py
+`
 
 ## Initial Discord.py Setup
 This section provides step-by-step instructions for installing and configuring a discord bot using this technology, from the initial
@@ -191,7 +210,7 @@ First of all, make sure you have the Discord.py library installed to access all 
 ```bash
 pip install discord.py
 ```  
-Then, inside your project create an inicial script bot.py and import the library along with the other modules that you need.
+Then, inside your project create an inicial script main.py and import the library along with the other modules that you need.
 ```python
 import discord
 ```  
