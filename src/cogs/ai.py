@@ -1,7 +1,8 @@
-import discord
+﻿import discord
 from discord.ext import commands
 import os
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from gtts import gTTS
 import asyncio
 import uuid
@@ -17,11 +18,10 @@ class AICog(commands.Cog):
         
         gemini_api_key = os.getenv("GEMINI_API_KEY")
         if gemini_api_key:
-            genai.configure(api_key=gemini_api_key)
-            self.model = genai.GenerativeModel('gemini-1.5-flash')
+            self.client = genai.Client(api_key=gemini_api_key)
         else:
             print("WARNING: GEMINI_API_KEY not found in environment variables.")
-            self.model = None
+            self.client = None
 
     async def _process_tts(self, ctx, response_text):
         voice_client = discord.utils.get(self.bot.voice_clients, guild=ctx.guild)
@@ -59,7 +59,7 @@ class AICog(commands.Cog):
     @commands.hybrid_command(name="chat", description="Chat with Gemini Flash AI (Supports Images)")
     @commands.cooldown(1, 8, commands.BucketType.user)
     async def chat(self, ctx: commands.Context, *, message: str = None):
-        if not self.model:
+        if not self.client:
             return await ctx.send(f"{Emojis.NO} Gemini API is not configured. Missing GEMINI_API_KEY.")
             
         if not message and not ctx.message.attachments:
@@ -81,7 +81,10 @@ class AICog(commands.Cog):
                 else:
                     return await ctx.send(f"{Emojis.WARNING} The attached file is not a supported image format.")
                     
-            response = await self.model.generate_content_async(content_to_send)
+            response = await self.client.aio.models.generate_content(
+                model='gemini-1.5-flash',
+                contents=content_to_send
+            )
             response_text = response.text
             
             if len(response_text) <= 2000:
@@ -99,7 +102,7 @@ class AICog(commands.Cog):
     @commands.hybrid_command(name="smart", description="Ask Gemini, backed by real-time web search")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def smart(self, ctx: commands.Context, *, question: str):
-        if not self.model:
+        if not self.client:
             return await ctx.send(f"{Emojis.NO} Gemini API is not configured.")
 
         await ctx.defer()
@@ -129,7 +132,10 @@ class AICog(commands.Cog):
                 
             prompt = prompt_template.format(context=context, question=question)
             
-            response = await self.model.generate_content_async(prompt)
+            response = await self.client.aio.models.generate_content(
+                model='gemini-1.5-flash',
+                contents=prompt
+            )
             response_text = response.text
             
             if len(response_text) <= 2000:
@@ -147,7 +153,7 @@ class AICog(commands.Cog):
     @commands.hybrid_command(name="programmer", description="Expert AI coding assistant and mentor")
     @commands.cooldown(1, 8, commands.BucketType.user)
     async def programmer(self, ctx: commands.Context, *, question: str):
-        if not self.model:
+        if not self.client:
             return await ctx.send(f"{Emojis.NO} Gemini API is not configured.")
 
         await ctx.defer()
@@ -161,7 +167,10 @@ class AICog(commands.Cog):
                 
             prompt = prompt_template.format(question=question)
             
-            response = await self.model.generate_content_async(prompt)
+            response = await self.client.aio.models.generate_content(
+                model='gemini-1.5-flash',
+                contents=prompt
+            )
             response_text = response.text
             
             if len(response_text) <= 2000:
