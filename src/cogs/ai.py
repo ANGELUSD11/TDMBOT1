@@ -81,9 +81,19 @@ class AICog(commands.Cog):
                 else:
                     return await ctx.send(f"{Emojis.WARNING} The attached file is not a supported image format.")
                     
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            prompt_path = os.path.join(current_dir, "..", "prompts", "dynamic_persona.md")
+            system_instruction = ""
+            if os.path.exists(prompt_path):
+                with open(prompt_path, "r", encoding="utf-8") as f:
+                    system_instruction = f.read()
+
             response = await self.client.aio.models.generate_content(
                 model='gemini-2.5-flash',
-                contents=content_to_send
+                contents=content_to_send,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction
+                ) if system_instruction else None
             )
             response_text = response.text
             
