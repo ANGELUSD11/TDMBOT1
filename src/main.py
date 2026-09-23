@@ -58,6 +58,10 @@ class ProfessionalBot(commands.Bot):
             await ctx.send(f"⏳ **Hold on!** This command is on cooldown. Try again in `{error.retry_after:.1f}s`.", delete_after=5)
         elif isinstance(error, commands.MissingPermissions):
             await ctx.send("❌ You do not have permission to use this command.")
+        elif isinstance(error, commands.MemberNotFound) or isinstance(error, commands.UserNotFound):
+            await ctx.send(f"❓ **User not found.** I couldn't find anyone matching that name in the server.")
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(f"⚠️ **Invalid input.** Please check the spelling or format.")
         else:
             logger.error(f'Ignoring exception in command {ctx.command}: {error}')
 
