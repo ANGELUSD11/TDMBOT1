@@ -66,6 +66,7 @@ class InfoCog(commands.Cog):
                 ">ask - Make me speak text in the VC using TTS\n\n"
                 "**🔧 Utility:**\n"
                 "`>dl` - Download videos (YouTube, TikTok, Twitter, etc)\n"
+                "`>setbday` - Set your birthday for a global shoutout\n"
                 "`>avatar` - View a user's profile picture\n"
                 "`>spotify` - View what a user is listening to\n"
                 "`>binary` - Convert text to binary and vice versa\n"

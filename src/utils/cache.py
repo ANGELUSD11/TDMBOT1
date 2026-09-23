@@ -1,4 +1,4 @@
-﻿import redis.asyncio as redis_async
+import redis.asyncio as redis_async
 import os
 import json
 import logging
@@ -37,7 +37,10 @@ class RedisCache:
         if not self.redis:
             return
         try:
-            await self.redis.setex(key, ttl, json.dumps(value))
+            if ttl is None:
+                await self.redis.set(key, json.dumps(value))
+            else:
+                await self.redis.setex(key, ttl, json.dumps(value))
         except Exception as e:
             logger.error(f"Redis SET Error: {e}")
 
