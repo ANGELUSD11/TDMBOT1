@@ -23,7 +23,10 @@ class ImagineCog(commands.Cog):
         url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?nologo=true"
         
         try:
-            async with aiohttp.ClientSession() as session:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+            async with aiohttp.ClientSession(headers=headers) as session:
                 async with session.get(url) as response:
                     if response.status == 200:
                         image_data = await response.read()
