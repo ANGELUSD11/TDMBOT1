@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands, tasks
 import os
 import datetime
@@ -38,7 +38,10 @@ class EventsCog(commands.Cog):
 
     @commands.hybrid_command(name="setbday", description="Set your birthday so the bot can congratulate you! (Format: DD/MM)")
     @commands.cooldown(1, 10, commands.BucketType.user)
-    async def setbday(self, ctx: commands.Context, date: str):
+    async def setbday(self, ctx: commands.Context, date: str = None):
+        if not date:
+            return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>setbday DD/MM`\nExample: `>setbday 15/07` (For July 15th).")
+            
         try:
             day_str, month_str = date.split('/')
             day = int(day_str)

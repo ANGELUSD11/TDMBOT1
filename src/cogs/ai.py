@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands
 import os
 from google import genai
@@ -101,7 +101,10 @@ class AICog(commands.Cog):
 
     @commands.hybrid_command(name="smart", description="Ask Gemini, backed by real-time web search")
     @commands.cooldown(1, 10, commands.BucketType.user)
-    async def smart(self, ctx: commands.Context, *, question: str):
+    async def smart(self, ctx: commands.Context, *, question: str = None):
+        if not question:
+            return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>smart [question]`\nExample: `>smart Who won the 2022 world cup?`")
+            
         if not self.client:
             return await ctx.send(f"{Emojis.NO} Gemini API is not configured.")
 
@@ -152,7 +155,10 @@ class AICog(commands.Cog):
 
     @commands.hybrid_command(name="programmer", description="Expert AI coding assistant and mentor")
     @commands.cooldown(1, 8, commands.BucketType.user)
-    async def programmer(self, ctx: commands.Context, *, question: str):
+    async def programmer(self, ctx: commands.Context, *, question: str = None):
+        if not question:
+            return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>programmer [coding question]`\nExample: `>programmer How do I make a for loop in Python?`")
+            
         if not self.client:
             return await ctx.send(f"{Emojis.NO} Gemini API is not configured.")
 

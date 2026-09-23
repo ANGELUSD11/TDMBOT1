@@ -11,7 +11,20 @@ class UtilsCog(commands.Cog):
 
     @commands.hybrid_command(name="translate", description="Translate text to a specific language")
     @commands.cooldown(1, 3, commands.BucketType.user)
-    async def translate(self, ctx: commands.Context, lang: str, *, text: str):
+    async def translate(self, ctx: commands.Context, lang: str = None, *, text: str = None):
+        if not lang or not text:
+            msg = (
+                f"{Emojis.WARNING} **Incorrect usage.**\n"
+                f"Format: `>translate [language] [text]`\n\n"
+                f"**Examples:**\n"
+                f"`>translate en Hola mundo` (Translates to English)\n"
+                f"`>translate es Hello world` (Translates to Spanish)\n"
+                f"`>translate fr Good morning` (Translates to French)\n\n"
+                f"**Common languages:**\n"
+                f"`en` (English), `es` (Spanish), `fr` (French), `de` (German), `it` (Italian), `pt` (Portuguese), `ja` (Japanese), `ru` (Russian)."
+            )
+            return await ctx.send(msg)
+            
         await ctx.defer()
         
         from utils.cache import redis_cache
@@ -42,7 +55,10 @@ class UtilsCog(commands.Cog):
 
     @commands.hybrid_command(name="wiki", description="Search Wikipedia")
     @commands.cooldown(1, 3, commands.BucketType.user)
-    async def wiki(self, ctx: commands.Context, *, query: str):
+    async def wiki(self, ctx: commands.Context, *, query: str = None):
+        if not query:
+            return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>wiki [search term]`\nExample: `>wiki Python`")
+            
         await ctx.defer()
         
         def fetch_wiki():

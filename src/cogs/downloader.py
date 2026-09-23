@@ -13,7 +13,10 @@ class DownloaderCog(commands.Cog):
 
     @commands.hybrid_command(name="dl", description="Download a video from YouTube, TikTok, Twitter, etc.")
     @commands.cooldown(1, 15, commands.BucketType.user)
-    async def dl(self, ctx: commands.Context, url: str):
+    async def dl(self, ctx: commands.Context, url: str = None):
+        if not url:
+            return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>dl [video_url]`\nExample: `>dl https://www.youtube.com/watch?v=...`")
+            
         await ctx.defer()
         
         # Options optimized for Discord (25MB limit) and avoiding YouTube Bot Protection

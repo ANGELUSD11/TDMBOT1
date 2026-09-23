@@ -12,7 +12,10 @@ class ImagineCog(commands.Cog):
 
     @commands.hybrid_command(name="imagine", description="Generate an AI image based on a prompt")
     @commands.cooldown(1, 10, commands.BucketType.user)
-    async def imagine(self, ctx: commands.Context, *, prompt: str):
+    async def imagine(self, ctx: commands.Context, *, prompt: str = None):
+        if not prompt:
+            return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>imagine [description]`\nExample: `>imagine a cybernetic cat on mars`")
+            
         await ctx.defer()
         
         # Pollinations is a free, no-API-key image generation service

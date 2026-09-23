@@ -14,7 +14,10 @@ class QueryCog(commands.Cog):
 
     @commands.hybrid_command(name="yt", description="Search for a YouTube video")
     @commands.cooldown(1, 4, commands.BucketType.user)
-    async def yt(self, ctx: commands.Context, *, search_query: str):
+    async def yt(self, ctx: commands.Context, *, search_query: str = None):
+        if not search_query:
+            return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>yt [search_query]`\nExample: `>yt python tutorial`")
+            
         await ctx.defer() 
         url = "https://www.googleapis.com/youtube/v3/search"
         params = {"part": "snippet", "q": search_query, "key": self.youtube_api_key, "type": "video", "maxResults": 1}
@@ -46,7 +49,10 @@ class QueryCog(commands.Cog):
 
     @commands.hybrid_command(name="search", description="Search the web using DuckDuckGo")
     @commands.cooldown(1, 4, commands.BucketType.user)
-    async def search(self, ctx: commands.Context, *, query: str):
+    async def search(self, ctx: commands.Context, *, query: str = None):
+        if not query:
+            return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>search [query]`\nExample: `>search history of rome`")
+            
         await ctx.defer()
         
         from utils.cache import redis_cache
@@ -95,7 +101,10 @@ class QueryCog(commands.Cog):
 
     @commands.hybrid_command(name="img", description="Search for an image using DuckDuckGo")
     @commands.cooldown(1, 4, commands.BucketType.user)
-    async def img(self, ctx: commands.Context, *, query: str):
+    async def img(self, ctx: commands.Context, *, query: str = None):
+        if not query:
+            return await ctx.send(f"{Emojis.WARNING} **Incorrect usage.** Format: `>img [query]`\nExample: `>img beautiful landscape`")
+            
         await ctx.defer()
         
         def do_img_search():
