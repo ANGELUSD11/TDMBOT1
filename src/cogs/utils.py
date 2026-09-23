@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands
 from deep_translator import GoogleTranslator
 import wikipedia
@@ -10,13 +10,28 @@ class UtilsCog(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(name="translate", description="Translate text to a specific language")
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def translate(self, ctx: commands.Context, lang: str, *, text: str):
         await ctx.defer()
+        
+        from utils.cache import redis_cache
+        cache_key = f"translate:{lang.lower()}:{text}"
+        
+        cached_data = await redis_cache.get(cache_key)
+        if cached_data:
+            embed = discord.Embed(title=f"{Emojis.YES} Translation", color=EmbedColors.SUCCESS)
+            embed.add_field(name="Original", value=text[:1024], inline=False)
+            embed.add_field(name=f"Translated ({lang})", value=cached_data[:1024], inline=False)
+            embed.set_footer(text="⚡ Instantly fetched from Redis Cache")
+            return await ctx.send(embed=embed)
+            
         try:
             translated = await asyncio.to_thread(
                 GoogleTranslator(source='auto', target=lang).translate, 
                 text
             )
+            
+            await redis_cache.set(cache_key, translated, ttl=86400) # Cache for 24 hours
             
             embed = discord.Embed(title=f"{Emojis.YES} Translation", color=EmbedColors.SUCCESS)
             embed.add_field(name="Original", value=text[:1024], inline=False)
@@ -26,6 +41,7 @@ class UtilsCog(commands.Cog):
             await ctx.send(f"{Emojis.NO} An error occurred during translation. Make sure the language code is valid (e.g., 'en', 'es', 'fr').")
 
     @commands.hybrid_command(name="wiki", description="Search Wikipedia")
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def wiki(self, ctx: commands.Context, *, query: str):
         await ctx.defer()
         

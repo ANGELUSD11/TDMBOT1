@@ -12,6 +12,7 @@ class DownloaderCog(commands.Cog):
             os.makedirs('downloads')
 
     @commands.hybrid_command(name="dl", description="Download a video from YouTube, TikTok, Twitter, etc.")
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def dl(self, ctx: commands.Context, url: str):
         await ctx.defer()
         

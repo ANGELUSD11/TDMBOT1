@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands
 import os
 import aiohttp
@@ -13,6 +13,7 @@ class QueryCog(commands.Cog):
         self.youtube_api_key = os.getenv("YOUTUBE_API_KEY")
 
     @commands.hybrid_command(name="yt", description="Search for a YouTube video")
+    @commands.cooldown(1, 4, commands.BucketType.user)
     async def yt(self, ctx: commands.Context, *, search_query: str):
         await ctx.defer() 
         url = "https://www.googleapis.com/youtube/v3/search"
@@ -44,9 +45,25 @@ class QueryCog(commands.Cog):
             await ctx.send(f"{Emojis.NO} An unexpected error occurred: {str(e)}")
 
     @commands.hybrid_command(name="search", description="Search the web using DuckDuckGo")
+    @commands.cooldown(1, 4, commands.BucketType.user)
     async def search(self, ctx: commands.Context, *, query: str):
         await ctx.defer()
         
+        from utils.cache import redis_cache
+        cache_key = f"ddgs:text:{query.lower()}"
+        
+        cached_data = await redis_cache.get(cache_key)
+        if cached_data:
+            embed = discord.Embed(title=f"{Emojis.SEARCH} DuckDuckGo Search: {query}", color=EmbedColors.WARNING)
+            embed.set_footer(text="⚡ Instantly fetched from Redis Cache")
+            for res in cached_data:
+                embed.add_field(
+                    name=res.get("title", "No Title"),
+                    value=f"{res.get('body', 'No Description')}...\n[Read more]({res.get('href', '#')})",
+                    inline=False
+                )
+            return await ctx.send(embed=embed)
+
         def do_search():
             with DDGS() as ddgs:
                 return list(ddgs.text(query, max_results=3))
@@ -56,6 +73,8 @@ class QueryCog(commands.Cog):
             
             if not results:
                 return await ctx.send(f"{Emojis.WARNING} No results found.")
+                
+            await redis_cache.set(cache_key, results, ttl=3600) # Cache for 1 hour
                 
             embed = discord.Embed(title=f"{Emojis.SEARCH} DuckDuckGo Search: {query}", color=EmbedColors.WARNING)
             for res in results:
@@ -75,6 +94,7 @@ class QueryCog(commands.Cog):
             await ctx.send(f"{Emojis.NO} An unexpected error occurred during the web search: {str(e)}")
 
     @commands.hybrid_command(name="img", description="Search for an image using DuckDuckGo")
+    @commands.cooldown(1, 4, commands.BucketType.user)
     async def img(self, ctx: commands.Context, *, query: str):
         await ctx.defer()
         

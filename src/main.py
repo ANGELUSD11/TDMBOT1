@@ -12,6 +12,8 @@ logger = logging.getLogger('discord')
 
 load_dotenv()
 
+from utils.cache import redis_cache
+
 class ProfessionalBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
@@ -24,6 +26,8 @@ class ProfessionalBot(commands.Bot):
         )
 
     async def setup_hook(self):
+        await redis_cache.connect()
+            
         # Load cogs
         for filename in os.listdir('./cogs'):
             if filename.endswith('.py') and not filename.startswith('__'):
@@ -40,6 +44,18 @@ class ProfessionalBot(commands.Bot):
         logger.info(f'Logged in as {self.user} (ID: {self.user.id})')
         activity = discord.Activity(type=discord.ActivityType.watching, name='TDMBOT1')
         await self.change_presence(activity=activity)
+
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"⚠️ **Ups! Falta información.** Por favor proporciona el argumento requerido: `{error.param.name}`")
+        elif isinstance(error, commands.CommandNotFound):
+            pass # Ignore unknown commands to prevent spam
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(f"⏳ **¡Espera un poco!** Este comando está en enfriamiento. Intenta de nuevo en `{error.retry_after:.1f}s`.", delete_after=5)
+        elif isinstance(error, commands.MissingPermissions):
+            await ctx.send("❌ No tienes permisos para usar este comando.")
+        else:
+            logger.error(f'Ignoring exception in command {ctx.command}: {error}')
 
 if __name__ == '__main__':
     keep_alive() # Run the background web server

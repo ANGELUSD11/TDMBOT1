@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands
 import os
 import google.generativeai as genai
@@ -57,6 +57,7 @@ class AICog(commands.Cog):
                 print(f"Error playing audio: {play_error}")
 
     @commands.hybrid_command(name="chat", description="Chat with Gemini Flash AI (Supports Images)")
+    @commands.cooldown(1, 8, commands.BucketType.user)
     async def chat(self, ctx: commands.Context, *, message: str = None):
         if not self.model:
             return await ctx.send(f"{Emojis.NO} Gemini API is not configured. Missing GEMINI_API_KEY.")
@@ -96,6 +97,7 @@ class AICog(commands.Cog):
             print(f"Gemini API Error: {e}")
 
     @commands.hybrid_command(name="smart", description="Ask Gemini, backed by real-time web search")
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def smart(self, ctx: commands.Context, *, question: str):
         if not self.model:
             return await ctx.send(f"{Emojis.NO} Gemini API is not configured.")
@@ -143,6 +145,7 @@ class AICog(commands.Cog):
             print(f"Gemini API Error: {e}")
 
     @commands.hybrid_command(name="programmer", description="Expert AI coding assistant and mentor")
+    @commands.cooldown(1, 8, commands.BucketType.user)
     async def programmer(self, ctx: commands.Context, *, question: str):
         if not self.model:
             return await ctx.send(f"{Emojis.NO} Gemini API is not configured.")

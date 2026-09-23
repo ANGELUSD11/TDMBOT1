@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands
 import pytesseract
 from PIL import Image
@@ -11,6 +11,7 @@ class OCRCog(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(name="ocr", description="Extracts text from an attached image")
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def ocr(self, ctx: commands.Context, image: discord.Attachment = None):
         if not image:
             if ctx.message.attachments:

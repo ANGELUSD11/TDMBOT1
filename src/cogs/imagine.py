@@ -1,4 +1,4 @@
-﻿import discord
+import discord
 from discord.ext import commands
 import urllib.parse
 import aiohttp
@@ -11,6 +11,7 @@ class ImagineCog(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(name="imagine", description="Generate an AI image based on a prompt")
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def imagine(self, ctx: commands.Context, *, prompt: str):
         await ctx.defer()
         
@@ -37,6 +38,7 @@ class ImagineCog(commands.Cog):
             print(f"Imagine Error: {e}")
 
     @commands.hybrid_command(name="edit", description="Apply NotSoBot-style filters/AI modifications to an image")
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def edit(self, ctx: commands.Context, style: str = "deepfry", image: discord.Attachment = None):
         """Styles: deepfry, invert, blur, grayscale, edge"""
         if not image:
