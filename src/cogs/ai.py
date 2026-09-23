@@ -82,7 +82,7 @@ class AICog(commands.Cog):
                     return await ctx.send(f"{Emojis.WARNING} The attached file is not a supported image format.")
                     
             response = await self.client.aio.models.generate_content(
-                model='gemini-1.5-flash',
+                model='gemini-2.5-flash',
                 contents=content_to_send
             )
             response_text = response.text
@@ -136,7 +136,7 @@ class AICog(commands.Cog):
             prompt = prompt_template.format(context=context, question=question)
             
             response = await self.client.aio.models.generate_content(
-                model='gemini-1.5-flash',
+                model='gemini-2.5-flash',
                 contents=prompt
             )
             response_text = response.text
@@ -174,7 +174,7 @@ class AICog(commands.Cog):
             prompt = prompt_template.format(question=question)
             
             response = await self.client.aio.models.generate_content(
-                model='gemini-1.5-flash',
+                model='gemini-2.5-flash',
                 contents=prompt
             )
             response_text = response.text
