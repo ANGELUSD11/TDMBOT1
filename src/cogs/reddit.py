@@ -39,7 +39,14 @@ class RedditCog(commands.Cog):
         except asyncprawcore.exceptions.ServerError:
             await ctx.send(f"{Emojis.NO} Reddit API Error: Reddit servers are currently experiencing issues (500 Internal Server Error).")
         except asyncprawcore.exceptions.ResponseException as e:
-            await ctx.send(f"{Emojis.NO} Reddit API Error: Received bad response. Check if CLIENT_ID and CLIENT_SECRET are correct.")
+            await ctx.send(f"{Emojis.NO} Reddit API Error: Received bad response. Check Railway logs for exact HTTP error.")
+            import traceback
+            traceback.print_exc()
+            try:
+                print(f"Reddit HTTP Status: {e.response.status}")
+                print(f"Reddit HTTP Body: {await e.response.text()}")
+            except:
+                pass
         except Exception as e:
             await ctx.send(f"{Emojis.NO} An unexpected error occurred while fetching the meme: {str(e)}")
             print(f"Reddit API Error: {e}")
