@@ -1,4 +1,4 @@
-import discord
+﻿import discord
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
@@ -47,13 +47,15 @@ class ProfessionalBot(commands.Bot):
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f"⚠️ **Ups! Falta información.** Por favor proporciona el argumento requerido: `{error.param.name}`")
+            await ctx.send(f"⚠️ **Oops! Missing information.** Please provide the required argument: `{error.param.name}`")
+        elif isinstance(error, commands.MissingRequiredAttachment) or 'missing an attachment' in str(error):
+            await ctx.send(f"{Emojis.WARNING} **Oops! Missing image.** Please attach an image to the message.")
         elif isinstance(error, commands.CommandNotFound):
             pass # Ignore unknown commands to prevent spam
         elif isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(f"⏳ **¡Espera un poco!** Este comando está en enfriamiento. Intenta de nuevo en `{error.retry_after:.1f}s`.", delete_after=5)
+            await ctx.send(f"⏳ **Hold on!** This command is on cooldown. Try again in `{error.retry_after:.1f}s`.", delete_after=5)
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.send("❌ No tienes permisos para usar este comando.")
+            await ctx.send("❌ You do not have permission to use this command.")
         else:
             logger.error(f'Ignoring exception in command {ctx.command}: {error}')
 
@@ -61,3 +63,5 @@ if __name__ == '__main__':
     keep_alive() # Run the background web server
     bot = ProfessionalBot()
     bot.run(os.getenv('DISCORD_TOKEN'), log_handler=None)
+
+
