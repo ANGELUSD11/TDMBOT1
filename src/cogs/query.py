@@ -7,6 +7,42 @@ from ddgs import DDGS
 from ddgs.exceptions import DDGSException, RatelimitException, TimeoutException
 from utils.constants import EmbedColors, Emojis
 
+class ImageViewer(discord.ui.View):
+    def __init__(self, query: str, results: list, author_id: int):
+        super().__init__(timeout=60)
+        self.query = query
+        self.results = results
+        self.author_id = author_id
+        self.current_index = 0
+        self.jumps = 0
+        self.max_jumps = 3
+
+    @discord.ui.button(label="Next Image (3 left)", style=discord.ButtonStyle.primary, custom_id="next_img")
+    async def next_image(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user.id != self.author_id:
+            return await interaction.response.send_message("Only the person who ran the command can change the image.", ephemeral=True)
+            
+        self.jumps += 1
+        self.current_index = (self.current_index + 1) % len(self.results)
+        image_data = self.results[self.current_index]
+        
+        embed = discord.Embed(
+            title=f"{Emojis.IMAGE} {image_data.get('title', self.query)}",
+            url=image_data.get("url", "#"),
+            color=EmbedColors.WARNING
+        )
+        embed.set_image(url=image_data.get("image"))
+        embed.set_footer(text=f"Source: {image_data.get('source', 'DuckDuckGo')} | Jump {self.jumps}/3")
+        
+        jumps_left = self.max_jumps - self.jumps
+        if jumps_left <= 0:
+            button.label = "No more jumps"
+            button.disabled = True
+        else:
+            button.label = f"Next Image ({jumps_left} left)"
+            
+        await interaction.response.edit_message(embed=embed, view=self)
+
 class QueryCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -107,11 +143,11 @@ class QueryCog(commands.Cog):
             
         await ctx.defer()
         
-        import random
         def do_img_search():
             with DDGS() as ddgs:
                 clean_query = query + " -site:pinterest.com -site:pinterest.es"
-                return list(ddgs.images(clean_query, max_results=7))
+                # Fetch 4 images (original + 3 jumps)
+                return list(ddgs.images(clean_query, max_results=4))
                 
         try:
             results = await asyncio.to_thread(do_img_search)
@@ -119,16 +155,18 @@ class QueryCog(commands.Cog):
             if not results:
                 return await ctx.send(f"{Emojis.WARNING} No images found.")
                 
-            image_data = random.choice(results)
+            image_data = results[0]
             embed = discord.Embed(
                 title=f"{Emojis.IMAGE} {image_data.get('title', query)}",
                 url=image_data.get("url", "#"),
                 color=EmbedColors.WARNING
             )
             embed.set_image(url=image_data.get("image"))
-            embed.set_footer(text=f"Source: {image_data.get('source', 'DuckDuckGo')}")
+            embed.set_footer(text=f"Source: {image_data.get('source', 'DuckDuckGo')} | Jump 0/3")
             
-            await ctx.send(embed=embed)
+            view = ImageViewer(query, results, ctx.author.id) if len(results) > 1 else None
+            
+            await ctx.send(embed=embed, view=view)
         except RatelimitException:
             await ctx.send(f"{Emojis.WARNING} DuckDuckGo rate limit reached. Please wait a bit before searching again.")
         except TimeoutException:
