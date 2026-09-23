@@ -12,7 +12,9 @@ class RedditCog(commands.Cog):
         
         # meme-api.com expects a single subreddit or multiple separated by commas
         # If passed with '+' (e.g. memes+dankmemes), we replace with commas
-        api_sub = subreddit_name.replace('+', ',')
+        import random
+        subreddits = subreddit_name.split('+')
+        api_sub = random.choice(subreddits)
         url = f"https://meme-api.com/gimme/{api_sub}"
         
         try:
