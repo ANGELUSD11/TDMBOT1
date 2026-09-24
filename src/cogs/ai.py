@@ -122,7 +122,12 @@ class AICog(commands.Cog):
             await self._process_tts(ctx, response_text)
                     
         except Exception as e:
-            await ctx.send(f"{Emojis.NO} An error occurred while communicating with Gemini.")
+            error_str = str(e)
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                await ctx.send(f"{Emojis.WARNING} **API Rate Limit Exceeded!** The bot is receiving too many requests right now. Please wait about 15-30 seconds before asking another question.")
+            else:
+                await ctx.send(f"{Emojis.NO} An error occurred while communicating with Gemini.")
+                print(f"Gemini API Error: {error_str}")
             print(f"Gemini API Error: {e}")
 
     @commands.hybrid_command(name="smart", description="Ask Gemini, backed by real-time web search")
@@ -176,7 +181,12 @@ class AICog(commands.Cog):
             await self._process_tts(ctx, response_text)
                     
         except Exception as e:
-            await ctx.send(f"{Emojis.NO} An error occurred while communicating with Gemini.")
+            error_str = str(e)
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                await ctx.send(f"{Emojis.WARNING} **API Rate Limit Exceeded!** The bot is receiving too many requests right now. Please wait about 15-30 seconds before asking another question.")
+            else:
+                await ctx.send(f"{Emojis.NO} An error occurred while communicating with Gemini.")
+                print(f"Gemini API Error: {error_str}")
             print(f"Gemini API Error: {e}")
 
     @commands.hybrid_command(name="programmer", description="Expert AI coding assistant and mentor")
@@ -214,7 +224,12 @@ class AICog(commands.Cog):
             await self._process_tts(ctx, response_text)
                     
         except Exception as e:
-            await ctx.send(f"{Emojis.NO} An error occurred while communicating with Gemini.")
+            error_str = str(e)
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                await ctx.send(f"{Emojis.WARNING} **API Rate Limit Exceeded!** The bot is receiving too many requests right now. Please wait about 15-30 seconds before asking another question.")
+            else:
+                await ctx.send(f"{Emojis.NO} An error occurred while communicating with Gemini.")
+                print(f"Gemini API Error: {error_str}")
             print(f"Gemini API Error: {e}")
 
 async def setup(bot):

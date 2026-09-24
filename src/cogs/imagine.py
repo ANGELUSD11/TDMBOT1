@@ -33,6 +33,9 @@ class ImagineCog(commands.Cog):
                 if 'UNSAFE' in safety_response.text.upper():
                     return await ctx.send(f"{Emojis.NO} **Safety Block:** Your prompt violates the safety guidelines (NSFW, gore, or offensive content). Request denied.")
         except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                return await ctx.send(f"{Emojis.WARNING} **API Rate Limit Exceeded!** The safety scanner is currently overloaded. Please wait 15 seconds before generating an image.")
             print(f"Safety Scanner Error: {e}")
             # If the scanner fails, we still continue but rely on Pollinations safe mode
         # ------------------------------------------
