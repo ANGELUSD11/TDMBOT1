@@ -16,31 +16,6 @@ class AICog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
-        if message.author.bot:
-            return
-
-        if message.reference:
-            resolved = message.reference.resolved
-            if resolved is None and message.reference.message_id:
-                try:
-                    resolved = await message.channel.fetch_message(message.reference.message_id)
-                except Exception:
-                    pass
-            
-            if resolved and resolved.author == self.bot.user:
-                # Ensure it's not already a valid command by checking prefix
-                prefix = await self.bot.get_prefix(message)
-                if isinstance(prefix, str) and message.content.startswith(prefix):
-                    return
-                elif isinstance(prefix, list) and any(message.content.startswith(p) for p in prefix):
-                    return
-                
-                # Treat this reply as a >chat command automatically
-                ctx = await self.bot.get_context(message)
-                await ctx.invoke(self.chat, message=message.content)
-
         
         gemini_api_key = os.getenv("GEMINI_API_KEY")
         if gemini_api_key:
