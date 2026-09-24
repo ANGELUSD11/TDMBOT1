@@ -77,8 +77,8 @@ class AICog(commands.Cog):
                 attachment = ctx.message.attachments[0]
                 if attachment.content_type and attachment.content_type.startswith("image/"):
                     image_bytes = await attachment.read()
-                    image = Image.open(BytesIO(image_bytes))
-                    content_to_send.append(image)
+                    image_part = types.Part.from_bytes(data=image_bytes, mime_type=attachment.content_type)
+                    content_to_send.append(image_part)
                 else:
                     return await ctx.send(f"{Emojis.WARNING} The attached file is not a supported image format.")
                     
