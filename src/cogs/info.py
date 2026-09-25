@@ -1,4 +1,4 @@
-import discord
+﻿import discord
 from discord.ext import commands
 from utils.constants import EmbedColors, Emojis, BotConfig
 
@@ -19,6 +19,11 @@ class InfoCog(commands.Cog):
     @commands.hybrid_command(name="avatar", description="Show a user's avatar")
     async def avatar(self, ctx: commands.Context, member: discord.Member = None):
         member = member or ctx.author
+
+        # Hack for Slash Commands: Interaction members lack presence data.
+        # We pull the actual cached member from the guild to get their activities.
+        if ctx.guild:
+            member = ctx.guild.get_member(member.id) or member
         embed = discord.Embed(title=f"Avatar of {member.display_name}", color=EmbedColors.DEFAULT)
         embed.set_image(url=member.display_avatar.url)
         await ctx.send(embed=embed)
@@ -26,6 +31,11 @@ class InfoCog(commands.Cog):
     @commands.hybrid_command(name="spotify", description="Check what you or another user is listening to")
     async def spotify(self, ctx: commands.Context, member: discord.Member = None):
         member = member or ctx.author
+
+        # Hack for Slash Commands: Interaction members lack presence data.
+        # We pull the actual cached member from the guild to get their activities.
+        if ctx.guild:
+            member = ctx.guild.get_member(member.id) or member
         activity = next((a for a in member.activities if isinstance(a, discord.Spotify)), None)
 
         if activity:
@@ -48,7 +58,7 @@ class InfoCog(commands.Cog):
             description=(
                 f"Hello! I am a professional bot developed by **{BotConfig.AUTHOR}**. "
                 "My prefix is > and I also fully support Slash Commands /.\n\n"
-                "**🌐 Web & AI:**\n"
+                "**ðŸŒ Web & AI:**\n"
                 "`>search` - Search the web with DuckDuckGo\n"
                 "`>img` - Search for images\n"
                 "`>wiki` - Search articles on Wikipedia\n"
@@ -59,12 +69,12 @@ class InfoCog(commands.Cog):
                 "`>edit` - Apply NotSoBot-style filters to an image\n"
                 "`>translate` - Translate text to any language\n"
                 "`>ocr` - Extract text from attached images\n\n"
-                "**😂 Entertainment:**\n"
+                "**ðŸ˜‚ Entertainment:**\n"
                 ">meme / >shitpost / >cat - Random Reddit memes\n\n"
-                "**🎙️ Voice Channel:**\n"
+                "**ðŸŽ™ï¸ Voice Channel:**\n"
                 ">join / >leave - Connect or disconnect\n"
                 ">ask - Make me speak text in the VC using TTS\n\n"
-                "**🔧 Utility:**\n"
+                "**ðŸ”§ Utility:**\n"
                 "`>dl` - Download videos (YouTube, TikTok, Twitter, etc)\n"
                 "`>setbday` - Set your birthday for a global shoutout\n"
                 "`>avatar` - View a user's profile picture\n"
