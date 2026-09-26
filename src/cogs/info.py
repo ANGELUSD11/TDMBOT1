@@ -79,7 +79,7 @@ class InfoCog(commands.Cog):
                 "`>setbday` - Set your birthday for a global shoutout\n"
                 "`>avatar` - View a user's profile picture\n"
                 "`>spotify` - View what a user is listening to\n"
-                "`>binary` - Convert text to binary and vice versa\n"
+                ">binary - Convert text to binary and vice versa\n                >8ball / >coinflip / >dice / >rps - Minigames\n
                 "`>madewith` - Technical info about the bot\n\n"
                 f"Author: [{BotConfig.AUTHOR}]({BotConfig.WEBSITE}) | [GitHub]({BotConfig.GITHUB_URL})"
             ),
