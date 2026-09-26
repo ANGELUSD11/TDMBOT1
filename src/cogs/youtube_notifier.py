@@ -1,8 +1,9 @@
-import discord
+﻿import discord
 from discord.ext import commands, tasks
 import aiohttp
 import os
 import json
+import re
 import logging
 from utils.constants import Emojis
 
@@ -19,15 +20,14 @@ class YouTubeNotifierCog(commands.Cog):
         except ValueError:
             self.notify_channel_id = 0
             
-        # Utilizamos un archivo temporal local persistente
         self.data_file = "last_video.json"
         self.last_video_id = self.load_last_video()
         
         if self.youtube_api_key and self.yt_channel_id and self.notify_channel_id != 0:
             self.check_new_videos.start()
-            logger.info("YouTube Notifier Task started.")
+            logger.info("YouTube Notifier Task started with ultra-fast RSS integration.")
         else:
-            logger.warning("YouTube Notifier is disabled. Missing YOUTUBE_API_KEY, YOUTUBE_CHANNEL_ID, or NOTIFY_CHANNEL_ID in .env")
+            logger.warning("YouTube Notifier is disabled. Missing credentials in .env")
 
     def cog_unload(self):
         self.check_new_videos.cancel()
@@ -49,56 +49,64 @@ class YouTubeNotifierCog(commands.Cog):
         except Exception as e:
             logger.error(f"Error saving last video: {e}")
 
-    # Check every 15 minutes to save quota limits
-    @tasks.loop(minutes=15)
+    # Ahora revisamos cada 1 minuto (60s) usando el feed RSS gratuito que consume 0 cuota de API
+    @tasks.loop(minutes=1)
     async def check_new_videos(self):
-        url = "https://www.googleapis.com/youtube/v3/search"
-        params = {
-            "part": "snippet",
-            "channelId": self.yt_channel_id,
-            "order": "date",
-            "maxResults": 1,
-            "type": "video",
-            "key": self.youtube_api_key
-        }
-
+        rss_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={self.yt_channel_id}"
+        
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(url, params=params) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        if data.get("items"):
-                            latest_video = data["items"][0]
-                            video_id = latest_video["id"]["videoId"]
-                            
-                            # If we detect a new video
-                            if self.last_video_id and video_id != self.last_video_id:
-                                self.last_video_id = video_id
-                                self.save_last_video(video_id)
-                                
-                                channel = self.bot.get_channel(self.notify_channel_id)
-                                if channel:
-                                    title = latest_video["snippet"]["title"]
-                                    live_status = latest_video["snippet"].get("liveBroadcastContent", "none")
+                async with session.get(rss_url) as response:
+                    if response.status != 200:
+                        return
+                    
+                    xml_data = await response.text()
+                    
+                    # Buscamos el ID del video ms reciente en el XML
+                    match = re.search(r"<yt:videoId>(.*?)</yt:videoId>", xml_data)
+                    if not match:
+                        return
+                        
+                    video_id = match.group(1)
+                    
+                    # Si detectamos un video nuevo
+                    if self.last_video_id and video_id != self.last_video_id:
+                        
+                        # Hacemos una peticin a la API de Videos (Cuesta 1 unidad en vez de 100) para ver si es directo o video
+                        api_url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet&id={video_id}&key={self.youtube_api_key}"
+                        async with session.get(api_url) as api_response:
+                            if api_response.status == 200:
+                                data = await api_response.json()
+                                if data.get("items"):
+                                    self.last_video_id = video_id
+                                    self.save_last_video(video_id)
                                     
-                                    if live_status == "live":
-                                        msg = (f"@everyone 🔴 **¡ALERTA DE DIRECTO!** 🔴\n\n"
-                                               f"¡Dejen lo que estén haciendo! Angelus11 acaba de prender stream. "
-                                               f"Si no entras ahora, te vas a perder el chisme en vivo.\n\n"
-                                               f"**{title}**\nhttps://www.youtube.com/watch?v={video_id}")
-                                    else:
-                                        msg = (f"@everyone 🍿 **¡NUEVO VIDEO RECIÉN SALIDO DEL HORNO!** 🍿\n\n"
-                                               f"La espera ha terminado. Angelus11 acaba de bendecirnos con contenido fresco. "
-                                               f"Ve a darle amor, deja tu like y no te olvides de comentar.\n\n"
-                                               f"**{title}**\nhttps://www.youtube.com/watch?v={video_id}")
+                                    video_info = data["items"][0]["snippet"]
+                                    title = video_info["title"]
+                                    live_status = video_info.get("liveBroadcastContent", "none")
+                                    
+                                    channel = self.bot.get_channel(self.notify_channel_id)
+                                    if channel:
+                                        if live_status == "live":
+                                            msg = (f"@everyone 🔴 **¡ALERTA DE DIRECTO!** 🔴\n\n"
+                                                   f"¡Dejen lo que estén haciendo! Angelus11 acaba de prender stream. "
+                                                   f"Si no entras ahora, te vas a perder el chisme en vivo.\n\n"
+                                                   f"**{title}**\nhttps://www.youtube.com/watch?v={video_id}")
+                                        else:
+                                            msg = (f"@everyone 🍿 **¡NUEVO VIDEO RECIÉN SALIDO DEL HORNO!** 🍿\n\n"
+                                                   f"La espera ha terminado. Angelus11 acaba de bendecirnos con contenido fresco. "
+                                                   f"Ve a darle amor, deja tu like y no te olvides de comentar.\n\n"
+                                                   f"**{title}**\nhttps://www.youtube.com/watch?v={video_id}")
+                                            
+                                        await channel.send(msg)
                                         
-                                    await channel.send(msg)
-                            elif not self.last_video_id:
-                                # On first execution, just save the latest ID without notifying
-                                self.last_video_id = video_id
-                                self.save_last_video(video_id)
+                    elif not self.last_video_id:
+                        # Primera ejecucin, solo guardar el ID
+                        self.last_video_id = video_id
+                        self.save_last_video(video_id)
+                        
         except Exception as e:
-            logger.error(f"Error checking YouTube for new videos: {e}")
+            logger.error(f"Error checking YouTube RSS for new videos: {e}")
 
     @check_new_videos.before_loop
     async def before_check(self):
